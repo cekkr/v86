@@ -223,7 +223,7 @@ export function V86(options)
                     v86_bin = __dirname + "/" + v86_bin;
                     v86_bin_fallback = __dirname + "/" + v86_bin_fallback;
                 }
-                else
+                else if(false)
                 {
                     v86_bin = "build/" + v86_bin;
                     v86_bin_fallback = "build/" + v86_bin_fallback;

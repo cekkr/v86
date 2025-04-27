@@ -72,3 +72,5 @@ if __name__ == "__main__":
         sys.exit(1)
     
     merge_js_files(input_dir, output_file)
+
+    merge_js_files("lib/", "libv86.js")

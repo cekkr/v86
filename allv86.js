@@ -10173,6 +10173,7 @@ VirtQueueBufferChain.prototype.set_next_blob = function(src_buffer)
 
 
 const textde = new TextDecoder();
+const texten = new TextEncoder();
 
 // Inserts data from an array to a byte aligned struct in memory
 function Marshall(typelist, input, struct, offset) {
@@ -19023,7 +19024,7 @@ const STATUS_ON_STORAGE = 0x2;
 const STATUS_UNLINKED = 0x4;
 const STATUS_FORWARDING = 0x5;
 
-const texten = new TextEncoder();
+//const texten = new TextEncoder();
 
 /** @const */ var JSONFS_VERSION = 3;
 
@@ -24921,7 +24922,6 @@ function restore_state(cpu, state)
 // ---- File: src/main.js ----
 
 
-export { V86 } from "./browser/starter.js";
 
 /**
  * @constructor

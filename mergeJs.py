@@ -97,6 +97,48 @@ def extract_imports(file_content, file_dir):
     
     return imports
 
+import os
+import re
+import sys
+
+def extract_imports(file_content, file_dir):
+    """
+    Estrae i percorsi di import da un file JavaScript.
+    
+    Args:
+        file_content (str): Contenuto del file JS
+        file_dir (str): Directory del file per risolvere percorsi relativi
+        
+    Returns:
+        list: Lista dei percorsi dei file importati
+    """
+    imports = []
+    
+    # Pattern per catturare gli import
+    import_patterns = [
+        r'import\s+(?:{[^}]*}|\*\s+as\s+\w+|\w+)\s+from\s+["\']([^"\']+)["\'];',  # import standard
+        r'import\s+["\']([^"\']+)["\'];'  # import senza binding
+    ]
+    
+    for pattern in import_patterns:
+        matches = re.finditer(pattern, file_content)
+        for match in matches:
+            import_path = match.group(1)
+            
+            # Se il percorso è relativo, lo risolve rispetto alla directory del file
+            if import_path.startswith('./') or import_path.startswith('../'):
+                abs_path = os.path.normpath(os.path.join(file_dir, import_path))
+            else:
+                # Percorso assoluto o da node_modules
+                abs_path = import_path
+            
+            # Aggiungi l'estensione .js se mancante
+            if not abs_path.endswith('.js'):
+                abs_path += '.js'
+                
+            imports.append(abs_path)
+    
+    return imports
 
 def process_file(file_path, processed_files, processing_stack, result_content):
     """
@@ -140,13 +182,15 @@ def process_file(file_path, processed_files, processing_stack, result_content):
     for import_path in imports:
         process_file(import_path, processed_files, processing_stack, result_content)
     
-    # Rimuove le dichiarazioni import
+    # Rimuove tutte le possibili dichiarazioni di import
     content = re.sub(r'import\s+(?:{[\s\S]*?}|\*\s+as\s+\w+|\w+)\s+from\s+["\'][^"\']+["\'];', '', content)
     content = re.sub(r'import\s+["\'][^"\']+["\'];', '', content)
     
-    # Rimuove la parola chiave "export" preservando il resto della dichiarazione
+    # Rimuove tutte le possibili dichiarazioni di export
     content = re.sub(r'(^|\s)export\s+(?=(?:const|let|var|function|class|default|async))', r'\1', content, flags=re.MULTILINE)
     content = re.sub(r'(^|\s)export\s+default\s+', r'\1', content, flags=re.MULTILINE)
+    content = re.sub(r'(^|\s)export\s+\{[^}]*\}\s+from\s+["\'][^"\']+["\'];', '', content, flags=re.MULTILINE)
+    content = re.sub(r'(^|\s)export\s+\{[^}]*\};', '', content, flags=re.MULTILINE)
     
     # Aggiunge un commento con il percorso del file
     result_content.append(f"\n// ---- File: {file_path} ----\n")
@@ -178,7 +222,6 @@ def merge_js_files(entry_file, output_file):
     
     print(f"Unione completata! Il file di output è: {output_file}")
     print(f"Totale file elaborati: {len(processed_files)}")
-
 
 if __name__ == "__main__":
     import sys

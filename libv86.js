@@ -41,6 +41,8 @@ const STATUS_ON_STORAGE = 0x2;
 const STATUS_UNLINKED = 0x4;
 const STATUS_FORWARDING = 0x5;
 
+//const texten = new TextEncoder();
+
 /** @const */ var JSONFS_VERSION = 3;
 
 
